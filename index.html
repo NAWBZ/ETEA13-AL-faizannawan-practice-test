@@ -1,0 +1,317 @@
+# ETEA13-AL-faizannawan-practice-test
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ETEA Practice Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#ff9a9e,#fecfef);margin:0;color:#333;overflow-x:hidden}
+.container{max-width:900px;margin:20px auto;background:#fff;padding:30px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:fadeIn .5s ease-in}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+h2{text-align:center;color:#2c3e50;margin-bottom:20px}
+.center{text-align:center}
+input{width:100%;padding:12px;margin-bottom:15px;font-size:16px;border:2px solid #ddd;border-radius:10px;transition:border-color .3s}
+input:focus{border-color:#3498db;outline:none}
+button{padding:12px 20px;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:all .3s;margin:5px}
+#startBtn{background:linear-gradient(45deg,#3498db,#2980b9);color:white;width:100%;animation:bounce 2s infinite}
+@keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
+#timer{background:linear-gradient(45deg,#e74c3c,#c0392b);color:white;padding:15px;text-align:center;border-radius:10px;font-weight:bold;position:relative}
+#timerBar{width:100%;height:5px;background:#ddd;border-radius:5px;margin-top:10px}
+#timerBarFill{height:100%;background:#27ae60;border-radius:5px;transition:width 1s linear}
+.warning{color:#e74c3c;font-weight:bold;text-align:center;margin:15px 0;font-size:18px;animation:blink 1s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.option{border:2px solid #ecf0f1;padding:15px;border-radius:10px;margin-bottom:12px;cursor:pointer;transition:all .3s;background:#f9f9f9}
+.option:hover{border-color:#3498db;background:#ecf0f1;transform:scale(1.02)}
+.option.selected{border-color:#3498db;background:#d4edda}
+.option.correct{background:#3498db;color:white;border-color:#3498db}
+.option.wrong{background:#e74c3c;color:white;border-color:#e74c3c;border:3px solid red}
+.buttons{display:flex;justify-content:space-between;margin-top:25px;flex-wrap:wrap}
+#prevBtn{background:#7f8c8d;color:white}
+#skipBtn{background:#f39c12;color:white}
+#nextBtn{background:#2980b9;color:white}
+#submitBtn{background:#27ae60;color:white;width:100%;margin-top:20px;display:none}
+.progress{margin-bottom:20px}
+.progress-bar{width:100%;height:10px;background:#ddd;border-radius:5px}
+.progress-fill{height:100%;background:linear-gradient(45deg,#3498db,#2980b9);border-radius:5px;transition:width .5s}
+.footer{text-align:center;font-size:14px;margin-top:30px;color:#777}
+.dark-mode{background:#2c3e50;color:#ecf0f1}
+.dark-mode .container{background:#34495e}
+.review-question{border-bottom:1px solid #ddd;padding:15px 0}
+.review-option.correct{background:#3498db;color:white;border:2px solid #3498db;padding:8px;margin:3px;border-radius:8px}
+.review-option.wrong{background:#e74c3c;color:white;border:2px solid #e74c3c;padding:8px;margin:3px;border-radius:8px}
+.review-explanation{font-size:14px;color:#555;margin-top:8px}
+@media (max-width:600px){.buttons{flex-direction:column}button{width:100%}}
+</style>
+</head>
+<body>
+<!-- LOGIN -->
+<div class="container center" id="loginDiv">
+<h2><i class="fas fa-graduation-cap"></i> ETEA Practice Test</h2>
+<input id="studentName" placeholder="Student Name">
+<input id="rollNo" placeholder="Roll Number">
+<button id="startBtn" onclick="startCountdown()">Start Test</button>
+<div id="countdown" style="font-size:30px;color:#e74c3c;margin-top:15px"></div>
+<label><input type="checkbox" id="randomize"> Randomize Questions</label>
+<label><input type="checkbox" id="darkMode" onchange="toggleDarkMode()"> Dark Mode</label>
+</div>
+
+<!-- QUIZ -->
+<div class="container" id="quizDiv" style="display:none">
+<h2 class="center"><i class="fas fa-question-circle"></i> ETEA Practice Test</h2>
+<div id="timer">Time Left: 40:00</div>
+<div id="timerBar"><div id="timerBarFill"></div></div>
+<div class="warning" id="warn20" style="display:none"><i class="fas fa-exclamation-triangle"></i> Only 20 minutes remaining!</div>
+<div id="attemptInfo" class="center"></div>
+<div class="progress">
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+<div id="questionBox"></div>
+<div id="optionsBox"></div>
+<div class="buttons">
+<button id="prevBtn" onclick="prevQ()">Previous</button>
+<button id="skipBtn" onclick="skipQ()">Skip</button>
+<button id="nextBtn" onclick="nextQ()" disabled>Next</button>
+</div>
+<button id="submitBtn" onclick="confirmSubmit()">Submit Test</button>
+</div>
+
+<!-- RESULT -->
+<div class="container center" id="resultDiv" style="display:none">
+<h2 id="resStatus"></h2>
+<p id="resScore"></p>
+<p id="resTime"></p>
+<button onclick="showReview()" style="background:#2980b9;color:white;width:100%">Review Test</button>
+<button onclick="location.reload()">Restart</button>
+</div>
+
+<!-- REVIEW -->
+<div class="container" id="reviewDiv" style="display:none">
+<h2 class="center">Review Your Test</h2>
+<div id="reviewContent"></div>
+<button onclick="backToResult()" style="width:100%;background:#7f8c8d;color:white">Back to Result</button>
+</div>
+
+<div class="footer">Created by <b>Muhammad Faizan Nawab</b></div>
+
+<script>
+// ==========================
+// 100 MCQs (example 4 added; expand as needed)
+// ==========================
+
+const questions = [
+    
+ { q:"The book is written _____ a famous author.", o:["by","with","from","in"], a:0 },
+  { q:"She _____ born in 2000.", o:["is","was","are","be"], a:1 },
+  { q:"_____ is a conjunction.", o:["And","Book","Quickly","In"], a:0 },
+  { q:"He _____ his homework yesterday.", o:["do","does","did","doing"], a:2 },
+  { q:"The kids are playing _____ the park.", o:["in","on","at","with"], a:0 },
+  { q:"She _____ her homework already.", o:["do","does","did","has done"], a:3 },
+  { q:"The word \"quickly\" is an _____.", o:["adjective","adverb","noun","verb"], a:1 },
+  { q:"I am looking _____ my keys.", o:["for","at","in","on"], a:0 },
+  { q:"He is fond _____ reading.", o:["of","in","at","with"], a:0 },
+  { q:"_____ is a noun.", o:["Quickly","Book","Run","Happy"], a:1 },
+
+  { q:"The train _____ at 5 PM.", o:["leave","leaves","leaving","left"], a:1 },
+  { q:"She _____ to music every day.", o:["listen","listens","listening","listened"], a:1 },
+  { q:"The meeting is _____ 2 PM.", o:["in","on","at","by"], a:2 },
+  { q:"They _____ TV right now.", o:["watch","watches","are watching","watched"], a:2 },
+  { q:"_____ is an adjective.", o:["Quickly","Big","Run","And"], a:1 },
+  { q:"He works _____ a bank.", o:["in","at","on","with"], a:1 },
+  { q:"The pen is _____ the desk.", o:["on","in","at","under"], a:0 },
+  { q:"I _____ my breakfast already.", o:["have","has","had","having"], a:0 },
+  { q:"She is afraid _____ spiders.", o:["of","with","at","on"], a:0 },
+  { q:"They _____ friends for years.", o:["are","have been","is","was"], a:1 },
+
+  { q:"The hotel is _____ the beach.", o:["in","on","at","by"], a:1 },
+  { q:"_____ is a pronoun.", o:["Book","She","Run","In"], a:1 },
+  { q:"He _____ his car last week.", o:["sell","sells","sold","selling"], a:2 },
+  { q:"The cat is sitting _____ the chair.", o:["in","on","at","under"], a:1 },
+  { q:"_____ do you live?", o:["Where","What","When","How"], a:0 },
+  { q:"She _____ English very well.", o:["speak","speaks","speaking","spoke"], a:1 },
+  { q:"The book is _____ the table.", o:["in","on","at","with"], a:1 },
+  { q:"He is good _____ mathematics.", o:["in","at","on","with"], a:1 },
+  { q:"They _____ to Karachi next week.", o:["go","goes","are going","went"], a:2 },
+  { q:"The picture is _____ the wall.", o:["on","in","at","with"], a:0 },
+
+  { q:"She _____ a doctor.", o:["is","are","am","be"], a:0 },
+  { q:"The phone is _____ the table.", o:["on","in","at","under"], a:0 },
+  { q:"They _____ the movie last night.", o:["see","saw","seeing","sees"], a:1 },
+  { q:"_____ is an adverb.", o:["Quickly","Book","She","And"], a:0 },
+  { q:"We _____ dinner at 8 PM.", o:["have","has","had","having"], a:0 },
+  { q:"I _____ to the store earlier.", o:["go","went","going","goes"], a:1 },
+  { q:"He arrived _____ the airport late.", o:["in","on","at","with"], a:2 },
+  { q:"_____ you like tea?", o:["Do","Does","Did","Doing"], a:0 },
+  { q:"They _____ to music now.", o:["listen","listens","are listening","listened"], a:2 },
+  { q:"She _____ her keys at home.", o:["leave","leaves","left","leaving"], a:2 },
+
+  { q:"_____ is a verb.", o:["Book","Run","Quickly","And"], a:1 },
+  { q:"I am going _____ the market.", o:["to","at","in","on"], a:0 },
+  { q:"The book is on the table _____ the corner.", o:["in","at","on","with"], a:1 },
+  { q:"He _____ in Lahore for five years.", o:["live","lives","has lived","living"], a:2 },
+  { q:"The kids are playing _____ the park.", o:["in","on","at","with"], a:0 },
+  { q:"She _____ to school every day.", o:["go","goes","going","gone"], a:1 },
+  { q:"_____ is a preposition.", o:["And","But","In","Run"], a:2 },
+  { q:"They _____ the game yesterday.", o:["win","wins","won","winning"], a:2 },
+  { q:"The meeting is _____ 2 PM.", o:["in","on","at","by"], a:2 },
+  { q:"The book is _____ the table.", o:["in","on","at","with"], a:1 },
+
+  { q:"By next year, I _____ my degree.", o:["will complete","will have completed","complete","am completing"], a:1 },
+  { q:"She _____ to the store when I met her.", o:["goes","went","was going","has gone"], a:2 },
+  { q:"_____ I borrow your pen?", o:["May","Can","Should","Will"], a:0 },
+  { q:"Which sentence is in the passive voice?", o:["The dog bites the man","The man was bitten by the dog","The man bites the dog","The dog is biting the man"], a:1 },
+  { q:"The teacher asked the students _____ their homework.", o:["to do","doing","do","does"], a:0 },
+  { q:"The new policy _____ next month.", o:["implements","is implementing","will be implemented","has implemented"], a:2 },
+  { q:"_____ is a beautiful day today!", o:["It","This","That","What"], a:3 },
+  { q:"The manager _____ the meeting until next week.", o:["postpones","postponed","postponing","has postponed"], a:1 },
+  { q:"_____ you finish your project on time?", o:["Will","Would","Can","Should"], a:0 },
+  { q:"She _____ her breakfast already.", o:["has","have","had","having"], a:0 },
+
+  { q:"The team _____ the championship last year.", o:["wins","won","winning","has won"], a:1 },
+  { q:"_____ I help you with your bags?", o:["May","Can","Should","Will"], a:0 },
+  { q:"The company _____ a lot of money last quarter.", o:["makes","made","making","has made"], a:1 },
+  { q:"_____ is a great way to learn new things.", o:["Reading","Read","Reads","To read"], a:0 },
+  { q:"The company _____ a new CEO next month.", o:["appoints","appointed","appointing","will appoint"], a:3 },
+  { q:"She _____ her phone at home.", o:["leave","leaves","left","leaving"], a:2 },
+  { q:"_____ you like to go for a walk?", o:["Do","Would","Can","Should"], a:1 },
+  { q:"The students _____ to the museum yesterday.", o:["go","goes","went","going"], a:2 },
+  { q:"She _____ her keys everywhere.", o:["loses","lose","losing","lost"], a:0 },
+  { q:"_____ is a beautiful painting!", o:["It","This","That","What"], a:3 },
+
+  { q:"The team _____ the game last night.", o:["wins","won","winning","has won"], a:1 },
+  { q:"She _____ her breakfast already.", o:["has","have","had","having"], a:0 },
+  { q:"_____ I help you with your bags?", o:["May","Can","Should","Will"], a:0 },
+  { q:"The company _____ a lot of money last quarter.", o:["makes","made","making","has made"], a:1 },
+  { q:"The teacher _____ the students a lot of homework.", o:["gives","give","giving","gave"], a:3 },
+  { q:"_____ is a great way to learn new things.", o:["Reading","Read","Reads","To read"], a:0 },
+  { q:"The new policy _____ to improve customer satisfaction.", o:["aims","aim","aiming","has aimed"], a:0 },
+  { q:"She _____ to music every day.", o:["listen","listens","listening","listened"], a:1 },
+  { q:"The company _____ a new CEO next month.", o:["appoints","appointed","appointing","will appoint"], a:3 },
+  { q:"_____ you finish your project on time?", o:["Will","Would","Can","Should"], a:0 },
+
+  { q:"The team _____ the championship last year.", o:["wins","won","winning","has won"], a:1 },
+  { q:"She _____ her phone at home.", o:["leave","leaves","left","leaving"], a:2 },
+  { q:"The new policy _____ to improve customer satisfaction.", o:["aims","aim","aiming","has aimed"], a:0 },
+  { q:"She _____ her breakfast already.", o:["has","have","had","having"], a:0 },
+  { q:"_____ I help you with your bags?", o:["May","Can","Should","Will"], a:0 },
+  { q:"The company _____ a lot of money last quarter.", o:["makes","made","making","has made"], a:1 },
+  { q:"She _____ to music every day.", o:["listen","listens","listening","listened"], a:1 },
+  { q:"The teacher _____ the students a lot of homework.", o:["gives","give","giving","gave"], a:3 },
+  { q:"_____ is a great way to learn new things.", o:["Reading","Read","Reads","To read"], a:0 },
+  { q:"The company _____ a new CEO next month.", o:["appoints","appointed","appointing","will appoint"], a:3 },
+
+ { q:"She _____ her phone at home.", o:["leave","leaves","left","leaving"], a:2 },
+  { q:"The team _____ the championship last year.", o:["wins","won","winning","has won"], a:1 },
+  { q:"_____ you finish your project on time?", o:["Will","Would","Can","Should"], a:0 },
+  { q:"The company _____ a lot of money last quarter.", o:["makes","made","making","has made"], a:1 },
+  { q:"She _____ her breakfast already.", o:["has","have","had","having"], a:0 },
+  { q:"The new policy _____ to improve customer satisfaction.", o:["aims","aim","aiming","has aimed"], a:0 },
+  { q:"She _____ to music every day.", o:["listen","listens","listening","listened"], a:1 },
+  { q:"The teacher _____ the students a lot of homework.", o:["gives","give","giving","gave"], a:3 },
+  { q:"_____ is a great way to learn new things.", o:["Reading","Read","Reads","To read"], a:0 },
+  { q:"The company _____ a new CEO next month.", o:["appoints","appointed","appointing","will appoint"], a:3 },
+];
+
+
+
+// ==========================
+// Quiz Logic
+// ==========================
+let answers=new Array(questions.length).fill(null);
+let attempted=0,index=0,time=4000,startTime=Date.now(),timerInt;
+
+function playSound(f,d){
+const a=new (window.AudioContext||window.webkitAudioContext)();
+const o=a.createOscillator();const g=a.createGain();
+o.connect(g);g.connect(a.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(0.3,a.currentTime);o.start(a.currentTime);o.stop(a.currentTime+d);
+}
+
+function speakText(t){
+if('speechSynthesis'in window){let u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.8;u.pitch=1;speechSynthesis.speak(u);}
+}
+
+function startCountdown(){
+if(!studentName.value||!rollNo.value){alert("Please fill in all fields!");return;}
+let c=5;countdown.innerText=c;
+let i=setInterval(()=>{c--;countdown.innerText=c;if(c===0){clearInterval(i);loginDiv.style.display="none";quizDiv.style.display="block";loadQ();startTimer()}},1000);
+}
+
+function loadQ(){
+attemptInfo.innerText=`Attempted: ${answers.filter(a=>a!==null).length}/${questions.length}`;
+progressFill.style.width=`${(answers.filter(a=>a!==null).length/questions.length)*100}%`;
+
+let q=questions[index];
+questionBox.innerHTML=`<h3>${index+1}. ${q.q}</h3>`;
+optionsBox.innerHTML="";
+q.o.forEach((op,i)=>{
+let d=document.createElement("div");
+d.className="option";
+d.innerText=op;
+if(answers[index]===i)d.classList.add("selected");
+d.onclick=()=>{
+if(answers[index]===null)attempted++;
+answers[index]=i;
+if(i===q.c){d.classList.add("correct");playSound(900,.2);}
+else{d.classList.add("wrong");playSound(500,.2);}
+nextBtn.disabled=false;
+};
+optionsBox.appendChild(d);
+});
+prevBtn.disabled=index===0;
+nextBtn.textContent=index===questions.length-1?"Finish":"Next";
+submitBtn.style.display=index===questions.length-1?"block":"none";
+}
+
+function nextQ(){if(index<questions.length-1)index++;nextBtn.disabled=true;loadQ();}
+function prevQ(){if(index>0)index--;nextBtn.disabled=answers[index]===null;loadQ();}
+function skipQ(){index=(index+1)%questions.length;nextBtn.disabled=true;loadQ();}
+
+function startTimer(){
+timerInt=setInterval(()=>{
+let m=Math.floor(time/60),s=time%60;
+timer.innerText=`Time Left: ${m}:${s<10?'0':''}${s}`;
+timerBarFill.style.width=`${(time/2400)*100}%`;
+if(time===1200){warn20.style.display="block";playSound(600,1);}
+if(time--<=0){clearInterval(timerInt);submitTest();}
+},1000);
+}
+
+function confirmSubmit(){if(confirm("Submit Test?"))submitTest();}
+
+function submitTest(){
+clearInterval(timerInt);
+quizDiv.style.display="none";resultDiv.style.display="block";
+let score=answers.filter((a,i)=>a===questions[i].c).length;
+let pct=Math.round(score/questions.length*100);
+let tTaken=Math.floor((Date.now()-startTime)/60000);
+if(pct>=50){resStatus.innerHTML='🎉 PASSED! 🎉';speakText("Congratulations! You passed the test. Great job!");}
+else{resStatus.innerHTML='❌ FAILED ❌';speakText("Sorry! You failed. Try again to improve!");}
+resScore.innerText=`${studentName.value} (${rollNo.value}) scored ${score}/${questions.length} (${pct}%)`;
+resTime.innerText=`Time Taken: ${tTaken} minutes`;
+}
+
+function showReview(){
+resultDiv.style.display="none";reviewDiv.style.display="block";
+reviewContent.innerHTML="";
+questions.forEach((q,i)=>{
+let div=document.createElement("div");div.className="review-question";
+let opts="";
+q.o.forEach((op,idx)=>{
+let cls="review-option";
+if(idx===q.c)cls+=" correct";
+else if(answers[i]===idx)cls+=" wrong";
+opts+=`<div class="${cls}">${op}</div>`;
+});
+div.innerHTML=`<h4>${i+1}. ${q.q}</h4>${opts}<div class="review-explanation"><b>Explanation:</b> ${q.exp}</div>`;
+reviewContent.appendChild(div);
+});
+}
+
+function backToResult(){reviewDiv.style.display="none";resultDiv.style.display="block";}
+function toggleDarkMode(){document.body.classList.toggle("dark-mode");}
+</script>
+</body>
+</html>
